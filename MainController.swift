@@ -66,12 +66,7 @@ class MainController: UITableViewController, UIImagePickerControllerDelegate, UI
         }
         do{
             titles = try FileManager.default.contentsOfDirectory(atPath: imagesDirectoryPath)
-            if self.mediaCounter == 99999{
-                self.mediaCounter = 1
-            }
-            else{
-                self.mediaCounter = titles.count + 1
-            }
+            self.mediaCounter = titles.count + 1
         }
         catch{
             self.mediaCounter = 1
@@ -236,12 +231,7 @@ class MainController: UITableViewController, UIImagePickerControllerDelegate, UI
                 imagePath = imagesDirectoryPath.appending("/\(imagePath).jpeg")
                 let data = UIImageJPEGRepresentation(image, 1.0)
                 _ = FileManager.default.createFile(atPath: imagePath, contents: data, attributes: nil)
-                if self.mediaCounter == 99999{
-                    self.mediaCounter = 1
-                }
-                else{
-                    self.mediaCounter = self.mediaCounter + 1
-                }
+                self.mediaCounter = self.mediaCounter + 1
             }
             else{
                 print("Something went wrong")
@@ -254,12 +244,7 @@ class MainController: UITableViewController, UIImagePickerControllerDelegate, UI
                 videoPath = videoPath.appending("-\(convertedDateString)")
                 videoPath = imagesDirectoryPath.appending("/\(videoPath).mp4")
                 data?.write(toFile: videoPath, atomically: false)
-                if self.mediaCounter == 99999{
-                    self.mediaCounter = 1
-                }
-                else{
-                    self.mediaCounter = self.mediaCounter + 1
-                }
+                self.mediaCounter = self.mediaCounter + 1
             }
             else{
                 print("Something went wrong")
