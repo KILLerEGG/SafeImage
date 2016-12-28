@@ -9,9 +9,11 @@
 import AVKit
 import UIKit
 import Agrume
+import Photos
 import Foundation
 import AVFoundation
 import MobileCoreServices
+import DKImagePickerController
 
 class MainController: UITableViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIGestureRecognizerDelegate {
     
@@ -23,6 +25,11 @@ class MainController: UITableViewController, UIImagePickerControllerDelegate, UI
     var playerController:AVPlayerViewController!
     var agrume:Agrume!
     var mediaCounter:Int!
+    var isSwitchOn:Bool!
+    var tempDeleteSwitch:UISwitch!
+    
+    @IBOutlet weak var deleteSwitchLabel: UIBarButtonItem!
+    @IBOutlet weak var deleteSwitch: UIBarButtonItem!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -40,6 +47,17 @@ class MainController: UITableViewController, UIImagePickerControllerDelegate, UI
         self.task = DispatchWorkItem {
             self.logout()
         }
+        
+        let tempDeleteSwitchLabel: UILabel = UILabel.init(frame: CGRect(x: 0.0, y: 0.0, width: 290.0, height: 20.0))
+        tempDeleteSwitchLabel.text = "Delete from Camera Roll after upload: "
+        tempDeleteSwitchLabel.textColor = UIColor.white
+        self.deleteSwitchLabel.customView = tempDeleteSwitchLabel
+        
+        isSwitchOn = false
+        tempDeleteSwitch=UISwitch.init(frame: CGRect(x: 150.0, y: 300.0, width: 0.0, height: 0.0))
+        tempDeleteSwitch.addTarget(self, action: #selector(MainController.switchValueDidChange(sender:)), for: .valueChanged)
+        
+        self.deleteSwitch.customView = tempDeleteSwitch
         
         // Execute idle timeout in 5 minutes
         DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 300, execute: task)
@@ -66,12 +84,43 @@ class MainController: UITableViewController, UIImagePickerControllerDelegate, UI
         }
         do{
             titles = try FileManager.default.contentsOfDirectory(atPath: imagesDirectoryPath)
-            self.mediaCounter = titles.count + 1
+            let lastTitle: String = titles[titles.count-1] as String
+            let number = lastTitle.substring(to: lastTitle.index(lastTitle.startIndex, offsetBy: 5)) as NSString
+            self.mediaCounter = Int(number as String)! + 1
+            //self.mediaCounter = titles.count + 1
         }
         catch{
             self.mediaCounter = 1
         }
         self.refreshTable()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        self.navigationController?.setToolbarHidden(false, animated: true)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        self.navigationController?.setToolbarHidden(true, animated: true)
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        tempDeleteSwitch.setOn(isSwitchOn, animated: false)
+    }
+    
+    func switchValueDidChange(sender:UISwitch!)
+    {
+        if (sender.isOn == true){
+            isSwitchOn = true
+        }
+        else{
+            isSwitchOn = false
+        }
     }
     
     func resetTimer(sender: UITapGestureRecognizer? = nil){
@@ -94,6 +143,19 @@ class MainController: UITableViewController, UIImagePickerControllerDelegate, UI
     }
     
     @IBAction func choosePhoto(_ sender: Any) {
+        // TODO: Work on implementing multiple asset picker
+        /*let pickerController = DKImagePickerController()
+        pickerController.assetType = DKImagePickerControllerAssetType.allAssets
+        pickerController.allowMultipleTypes = true
+        pickerController.showsCancelButton = true
+        
+        pickerController.didSelectAssets = { (assets: [DKAsset]) in
+            print("didSelectAssets")
+            print(assets)
+        }
+        
+        self.present(pickerController, animated: true) {}*/
+        
         let imagePicker = UIImagePickerController()
         imagePicker.mediaTypes = ["public.image", "public.movie"]
         present(imagePicker, animated: true, completion: nil)
@@ -115,7 +177,6 @@ class MainController: UITableViewController, UIImagePickerControllerDelegate, UI
                 }
                 else {
                     do {
-                        
                         let fileURL = URL(fileURLWithPath: imagesDirectoryPath.appending("/\(image)"))
                         let asset = AVAsset(url: fileURL)
                         let imgGenerator = AVAssetImageGenerator(asset: asset)
@@ -209,7 +270,6 @@ class MainController: UITableViewController, UIImagePickerControllerDelegate, UI
             catch{
                 print("Could not remove file")
             }
-            
         }
     }
     
@@ -250,6 +310,33 @@ class MainController: UITableViewController, UIImagePickerControllerDelegate, UI
                 print("Something went wrong")
             }
         }
+        
+        if self.isSwitchOn! {
+            let imageUrl = info[UIImagePickerControllerReferenceURL] as! NSURL
+            let imageUrls = [imageUrl]
+            //Delete asset
+            PHPhotoLibrary.shared().performChanges( {
+                let imageAssetsToDelete = PHAsset.fetchAssets(withALAssetURLs: imageUrls as [URL], options: nil)
+                PHAssetChangeRequest.deleteAssets(imageAssetsToDelete)
+            },
+            completionHandler: { success, error in
+                if error != nil{
+                    let ac = UIAlertController(title: "Error", message: "Media could not be deleted from your Photos", preferredStyle: .alert)
+                    self.present(ac, animated: true)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                        ac.dismiss(animated: true, completion: nil)
+                    }
+                }
+                else{
+                    let ac = UIAlertController(title: "Success", message: "Media has been deleted from your Photos", preferredStyle: .alert)
+                    self.present(ac, animated: true)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                        ac.dismiss(animated: true, completion: nil)
+                    }
+                }
+            })
+        }
+        
         self.dismiss(animated: true) { () -> Void in
             self.refreshTable()
             

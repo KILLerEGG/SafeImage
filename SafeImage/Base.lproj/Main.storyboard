@@ -22,7 +22,7 @@
                                 <rect key="frame" x="0.0" y="28" width="320" height="70"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Jxb-RA-lu8" id="oKM-cF-Fgo">
-                                    <rect key="frame" x="0.0" y="0.0" width="320" height="69"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="320" height="69.5"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </tableViewCellContentView>
                             </tableViewCell>
@@ -32,6 +32,10 @@
                             <outlet property="delegate" destination="Dd9-Zl-BKJ" id="ksn-qx-3Hz"/>
                         </connections>
                     </tableView>
+                    <toolbarItems>
+                        <barButtonItem title="Item" id="YsT-EQ-b0l"/>
+                        <barButtonItem title="Item" id="zuc-au-maL"/>
+                    </toolbarItems>
                     <navigationItem key="navigationItem" id="TxU-kq-N1r">
                         <barButtonItem key="rightBarButtonItem" systemItem="camera" id="lEb-ep-kef">
                             <color key="tintColor" red="0.9959825873374939" green="0.99621325731277466" blue="0.99187678098678589" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -40,6 +44,11 @@
                             </connections>
                         </barButtonItem>
                     </navigationItem>
+                    <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
+                    <connections>
+                        <outlet property="deleteSwitch" destination="zuc-au-maL" id="b8A-c7-YT4"/>
+                        <outlet property="deleteSwitchLabel" destination="YsT-EQ-b0l" id="b4s-5X-94M"/>
+                    </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="92b-ZH-rhA" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -48,7 +57,7 @@
         <!--Navigation Controller-->
         <scene sceneID="eUe-GP-a2k">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="kxK-xK-XUW" sceneMemberID="viewController">
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" toolbarHidden="NO" id="kxK-xK-XUW" sceneMemberID="viewController">
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" barStyle="black" translucent="NO" id="UXD-rO-EQK">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
@@ -56,6 +65,10 @@
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
+                    <toolbar key="toolbar" opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" barStyle="black" id="DAc-3d-VeE">
+                        <rect key="frame" x="0.0" y="524" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </toolbar>
                     <connections>
                         <segue destination="zfc-4G-cRn" kind="relationship" relationship="rootViewController" id="sSJ-hY-33x"/>
                     </connections>
