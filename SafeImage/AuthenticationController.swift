@@ -10,7 +10,7 @@ import UIKit
 import Foundation
 import LocalAuthentication
 
-class AuthenticationController: UIViewController {
+class AuthenticationController: UIViewController, UITextFieldDelegate {
     
     var originalOrientation:NSString = "portrait"
     
@@ -42,12 +42,34 @@ class AuthenticationController: UIViewController {
             loginButton.setTitle("Create", for: UIControlState.normal)
             loginButton.tag = createLoginButtonTag
         }
+        
+        self.passwordTextField.delegate = self
+        
+        let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(AuthenticationController.dismissKeyboard))
+        
+        self.view.addGestureRecognizer(tap)
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
         self.touchAuth()
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        
+        if (checkLogin(password: textField.text!)) {
+            self.navigateToAuthenticatedViewController()
+        }
+        else {
+            showAlertWithTitle(title: "Error", message: "Invalid password")
+        }
+        return true
+    }
+    
+    func dismissKeyboard(){
+        self.view.endEditing(true)
     }
     
     func checkLogin(password: String ) -> Bool {
@@ -81,6 +103,7 @@ class AuthenticationController: UIViewController {
                     
                     // Fingerprint recognized
                     // Go to view controller
+                    self.dismissKeyboard()
                     self.navigateToAuthenticatedViewController()
                     
                 }
@@ -92,6 +115,7 @@ class AuthenticationController: UIViewController {
             
             DispatchQueue.main.async { () -> Void in
                 self.passwordTextField.text = ""
+                self.dismissKeyboard()
                 self.navigationController?.pushViewController(loggedInVC, animated: true)
             }
             
@@ -170,6 +194,7 @@ class AuthenticationController: UIViewController {
                 loginButton.setTitle("Login", for: UIControlState.normal)
                 createInfoLabel.text = "Enter your password to log in"
                 
+                self.dismissKeyboard()
                 self.navigateToAuthenticatedViewController()
             }
             else {
@@ -188,6 +213,7 @@ class AuthenticationController: UIViewController {
     }
     
     @IBAction func touchLogin(_ sender: Any) {
+        self.dismissKeyboard()
         self.touchAuth()
     }
     
