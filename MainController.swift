@@ -27,12 +27,16 @@ class MainController: UITableViewController, UIImagePickerControllerDelegate, UI
     var mediaCounter:Int!
     var isSwitchOn:Bool!
     var tempDeleteSwitch:UISwitch!
+    var defaults:UserDefaults!
     
     @IBOutlet weak var deleteSwitchLabel: UIBarButtonItem!
     @IBOutlet weak var deleteSwitch: UIBarButtonItem!
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // Init saved user setting for delete switch
+        self.defaults = UserDefaults.standard
         
         // Ensure audio plays if a video is selected
         try! AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback, with: [])
@@ -49,7 +53,7 @@ class MainController: UITableViewController, UIImagePickerControllerDelegate, UI
         }
         
         let tempDeleteSwitchLabel: UILabel = UILabel.init(frame: CGRect(x: 0.0, y: 0.0, width: 290.0, height: 20.0))
-        tempDeleteSwitchLabel.text = "Delete from Camera Roll after upload: "
+        tempDeleteSwitchLabel.text = "Delete from Camera Roll after upload:"
         tempDeleteSwitchLabel.textColor = UIColor.white
         self.deleteSwitchLabel.customView = tempDeleteSwitchLabel
         
@@ -87,7 +91,6 @@ class MainController: UITableViewController, UIImagePickerControllerDelegate, UI
             let lastTitle: String = titles[titles.count-1] as String
             let number = lastTitle.substring(to: lastTitle.index(lastTitle.startIndex, offsetBy: 5)) as NSString
             self.mediaCounter = Int(number as String)! + 1
-            //self.mediaCounter = titles.count + 1
         }
         catch{
             self.mediaCounter = 1
@@ -98,7 +101,13 @@ class MainController: UITableViewController, UIImagePickerControllerDelegate, UI
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
+        // Get user saved user setting if it exists
+        self.isSwitchOn = self.defaults.bool(forKey: "isOn")
+        
         self.navigationController?.setToolbarHidden(false, animated: true)
+        
+        // Set toolbar delete switch to saved user setting
+        tempDeleteSwitch.setOn(isSwitchOn, animated: false)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -109,17 +118,17 @@ class MainController: UITableViewController, UIImagePickerControllerDelegate, UI
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
-        tempDeleteSwitch.setOn(isSwitchOn, animated: false)
     }
     
     func switchValueDidChange(sender:UISwitch!)
     {
         if (sender.isOn == true){
             isSwitchOn = true
+            self.defaults.set(true, forKey: "isOn") // Update saved user setting
         }
         else{
             isSwitchOn = false
+            self.defaults.set(false, forKey: "isOn")
         }
     }
     
