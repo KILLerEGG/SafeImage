@@ -48,12 +48,14 @@ class AuthenticationController: UIViewController, UITextFieldDelegate {
         let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(AuthenticationController.dismissKeyboard))
         
         self.view.addGestureRecognizer(tap)
+        
+        self.touchAuth()
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        self.touchAuth()
+        //self.touchAuth()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -108,7 +110,7 @@ class AuthenticationController: UIViewController, UITextFieldDelegate {
         // 3. Check the fingerprint
         authenticationContext.evaluatePolicy(
             .deviceOwnerAuthenticationWithBiometrics,
-            localizedReason: "Authenticate to view photos",
+            localizedReason: "Authenticate to view media",
             reply: { [unowned self] (success, error) -> Void in
                 
                 if( success ) {

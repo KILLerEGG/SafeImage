@@ -28,12 +28,46 @@ class MainController: UITableViewController, UIImagePickerControllerDelegate, UI
     var isSwitchOn:Bool!
     var tempDeleteSwitch:UISwitch!
     var defaults:UserDefaults!
+    var selectedCount:Int!
+    
+    var activityView: UIView!
+    var activityIndicator:UIActivityIndicatorView!
+    var activityText: UILabel!
     
     @IBOutlet weak var deleteSwitchLabel: UIBarButtonItem!
     @IBOutlet weak var deleteSwitch: UIBarButtonItem!
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        let bounds = UIScreen.main.bounds
+        let width = bounds.size.width
+        let height = bounds.size.height
+        
+        activityView = UIView(frame: CGRect(x: (width/2)-160, y: (height/2)-100, width: 320, height: 50))
+        activityView.backgroundColor = UIColor.lightGray
+        activityView.layer.cornerRadius = 10
+        activityView.isHidden = true
+        
+        activityIndicator = UIActivityIndicatorView()
+        activityIndicator.activityIndicatorViewStyle = .whiteLarge
+        activityIndicator.color = UIColor.darkGray
+        activityIndicator.hidesWhenStopped = true
+        activityIndicator.frame = CGRect(x: 0, y: 0, width: 50.0, height: 50.0)
+        //activityIndicator.frame = CGRect(x: (width/2)-45.0, y: (height/2)-150.0, width: 100.0, height:100.0)
+        
+        activityText = UILabel(frame: CGRect(x: 60, y: 0, width: 220, height: 50))
+        activityText.text = "Downloading, please wait..."
+        activityText.isHidden = true
+        
+        activityView.addSubview(activityIndicator)
+        activityView.addSubview(activityText)
+        
+        //self.view.addSubview(activityIndicator)
+        
+        self.view.addSubview(activityView)
+        
+        self.selectedCount = 0
         
         // Init saved user setting for delete switch
         self.defaults = UserDefaults.standard
@@ -53,7 +87,7 @@ class MainController: UITableViewController, UIImagePickerControllerDelegate, UI
         }
         
         let tempDeleteSwitchLabel: UILabel = UILabel.init(frame: CGRect(x: 0.0, y: 0.0, width: 290.0, height: 20.0))
-        tempDeleteSwitchLabel.text = "Delete from Camera Roll after upload:"
+        tempDeleteSwitchLabel.text = "Delete from Photos after upload:"
         tempDeleteSwitchLabel.textColor = UIColor.white
         self.deleteSwitchLabel.customView = tempDeleteSwitchLabel
         
@@ -88,9 +122,14 @@ class MainController: UITableViewController, UIImagePickerControllerDelegate, UI
         }
         do{
             titles = try FileManager.default.contentsOfDirectory(atPath: imagesDirectoryPath)
-            let lastTitle: String = titles[titles.count-1] as String
-            let number = lastTitle.substring(to: lastTitle.index(lastTitle.startIndex, offsetBy: 5)) as NSString
-            self.mediaCounter = Int(number as String)! + 1
+            if titles.count > 0 {
+                let lastTitle: String = titles[titles.count-1] as String
+                let number = lastTitle.substring(to: lastTitle.index(lastTitle.startIndex, offsetBy: 5)) as NSString
+                self.mediaCounter = Int(number as String)! + 1
+            }
+            else {
+                self.mediaCounter = 1
+            }
         }
         catch{
             self.mediaCounter = 1
@@ -100,10 +139,9 @@ class MainController: UITableViewController, UIImagePickerControllerDelegate, UI
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
         // Get user saved user setting if it exists
         self.isSwitchOn = self.defaults.bool(forKey: "isOn")
-        
+
         self.navigationController?.setToolbarHidden(false, animated: true)
         
         // Set toolbar delete switch to saved user setting
@@ -116,6 +154,7 @@ class MainController: UITableViewController, UIImagePickerControllerDelegate, UI
         self.navigationController?.setToolbarHidden(true, animated: true)
     }
     
+    // Currently not used, keeping it just in case needed for future
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
     }
@@ -152,25 +191,128 @@ class MainController: UITableViewController, UIImagePickerControllerDelegate, UI
     }
     
     @IBAction func choosePhoto(_ sender: Any) {
-        // TODO: Work on implementing multiple asset picker
-        /*let pickerController = DKImagePickerController()
+        let pickerController = DKImagePickerController()
         pickerController.assetType = DKImagePickerControllerAssetType.allAssets
         pickerController.allowMultipleTypes = true
         pickerController.showsCancelButton = true
         
         pickerController.didSelectAssets = { (assets: [DKAsset]) in
-            print("didSelectAssets")
-            print(assets)
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "MM_dd_yyyy"
+            let currentDate = NSDate()
+            let convertedDateString = dateFormatter.string(from: currentDate as Date)
+            self.activityIndicator.startAnimating()
+            self.activityText.isHidden = false
+            self.activityView.isHidden = false
+            self.view.addSubview(self.activityView)
+            for asset in assets{
+                if asset.isVideo{
+                    let options: PHVideoRequestOptions = PHVideoRequestOptions()
+                    options.version = .original
+                    PHImageManager.default().requestAVAsset(forVideo: asset.originalAsset!, options: options, resultHandler: {(newAsset: AVAsset?, audioMix: AVAudioMix?, info: [AnyHashable : Any]?) -> Void in
+                                                
+                        if let urlAsset = newAsset as? AVURLAsset {
+                            let url:URL = urlAsset.url
+                            let data = NSData(contentsOf: url)
+                            var videoPath = String(format: "%05d", self.mediaCounter)
+                            videoPath = videoPath.appending("-\(convertedDateString)")
+                            videoPath = self.imagesDirectoryPath.appending("/\(videoPath).mp4")
+                            data?.write(toFile: videoPath, atomically: false)
+                            
+                            if self.isSwitchOn! {
+                                //Delete asset
+                                let deleteAsset = NSArray(object: asset.originalAsset!)
+                                PHPhotoLibrary.shared().performChanges( {
+                                    PHAssetChangeRequest.deleteAssets(deleteAsset)
+                                },
+                                completionHandler: { success, error in
+                                    if error != nil{
+                                        let ac = UIAlertController(title: "Error", message: "Video could not be deleted from your Photos", preferredStyle: .alert)
+                                        self.present(ac, animated: true)
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                                            ac.dismiss(animated: true, completion: nil)
+                                        }
+                                    }
+                                    else{
+                                        let ac = UIAlertController(title: "Success", message: "Video has been deleted from your Photos", preferredStyle: .alert)
+                                        self.present(ac, animated: true)
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                                            ac.dismiss(animated: true, completion: nil)
+                                        }
+                                    }
+                                })
+                            }
+                            self.mediaCounter = self.mediaCounter + 1
+                            self.selectedCount = self.selectedCount + 1
+                            if self.selectedCount == assets.count{
+                                self.doneAdding()
+                            }
+                        }
+                    })
+                }
+                else{
+                    asset.fetchOriginalImageWithCompleteBlock({image, _ in
+                        var imagePath = String(format: "%05d", self.mediaCounter)
+                        imagePath = imagePath.appending("-\(convertedDateString)")
+                        imagePath = self.imagesDirectoryPath.appending("/\(imagePath).jpeg")
+                        let data = UIImageJPEGRepresentation(image!, 1.0)
+                        _ = FileManager.default.createFile(atPath: imagePath, contents: data, attributes: nil)
+                        
+                        if self.isSwitchOn! {
+                            //Delete asset
+                            let deleteAsset = NSArray(object: asset.originalAsset!)
+                            PHPhotoLibrary.shared().performChanges( {
+                                PHAssetChangeRequest.deleteAssets(deleteAsset)
+                            },
+                            completionHandler: { success, error in
+                                if error != nil{
+                                    let ac = UIAlertController(title: "Error", message: "Photo could not be deleted from your Photos", preferredStyle: .alert)
+                                    self.present(ac, animated: true)
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                                        ac.dismiss(animated: true, completion: nil)
+                                    }
+                                }
+                                else{
+                                    let ac = UIAlertController(title: "Success", message: "Photo has been deleted from your Photos", preferredStyle: .alert)
+                                    self.present(ac, animated: true)
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                                        ac.dismiss(animated: true, completion: nil)
+                                    }
+                                }
+                            })
+                        }
+                        self.mediaCounter = self.mediaCounter + 1
+                        self.selectedCount = self.selectedCount + 1
+                        if self.selectedCount == assets.count{
+                            self.doneAdding()
+                        }
+                    })
+                }
+            }
         }
         
-        self.present(pickerController, animated: true) {}*/
+        self.present(pickerController, animated: true) {}
         
-        let imagePicker = UIImagePickerController()
+        // Original Code for single picker
+        /*let imagePicker = UIImagePickerController()
         imagePicker.mediaTypes = ["public.image", "public.movie"]
         present(imagePicker, animated: true, completion: nil)
-        imagePicker.delegate = self
+        imagePicker.delegate = self*/
     }
     
+    func doneAdding(){
+        self.activityIndicator.stopAnimating()
+        self.activityText.isHidden = true
+        self.activityView.isHidden = true
+        self.activityView.removeFromSuperview()
+        self.selectedCount = 0
+        let size = self.titles.count-1
+        self.refreshTable()
+        DispatchQueue.main.async(execute: {
+            self.scrollToBottom(animated: true, size: size)
+        })
+    }
+ 
     func refreshTable(){
         do{
             images.removeAll()
@@ -179,13 +321,14 @@ class MainController: UITableViewController, UIImagePickerControllerDelegate, UI
             
             for image in titles{
                 let imageExt = image.substring(from:image.index(image.endIndex, offsetBy: -4)) as NSString
-                if imageExt.isEqual(to: "jpeg"){
+                if imageExt.isEqual(to: "jpeg"){ // Check if it's an image
                     let data = FileManager.default.contents(atPath: imagesDirectoryPath.appending("/\(image)"))
                     let image = UIImage(data: data!)
                     images.append(image!)
                 }
-                else {
+                else { // Otherwise, it's a video
                     do {
+                        // Try to generate a thumbnail image from first frame of the video for display
                         let fileURL = URL(fileURLWithPath: imagesDirectoryPath.appending("/\(image)"))
                         let asset = AVAsset(url: fileURL)
                         let imgGenerator = AVAssetImageGenerator(asset: asset)
@@ -248,9 +391,11 @@ class MainController: UITableViewController, UIImagePickerControllerDelegate, UI
             let imageExt = path.substring(from:path.index(path.endIndex, offsetBy: -4)) as NSString
             if imageExt.isEqual(to: "jpeg"){
                 let image = UIImage(data: data!)
+                // Save image back to camera roll
                 UIImageWriteToSavedPhotosAlbum(image!, self, #selector(MainController.saveImage(_:didFinishSavingWithError:contextInfo:)), nil)
             }
             else {
+                // Save video back to camera roll
                 UISaveVideoAtPathToSavedPhotosAlbum(imagesDirectoryPath.appending("/\(path)"), self, #selector(MainController.saveVideo(_:didFinishSavingWithError:contextInfo:)), nil)
             }
         }
@@ -282,7 +427,8 @@ class MainController: UITableViewController, UIImagePickerControllerDelegate, UI
         }
     }
     
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+    // Not needed now due to implementation of multi-file picker
+    /*func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         
         let size = titles.count
         
@@ -323,21 +469,35 @@ class MainController: UITableViewController, UIImagePickerControllerDelegate, UI
         if self.isSwitchOn! {
             let imageUrl = info[UIImagePickerControllerReferenceURL] as! NSURL
             let imageUrls = [imageUrl]
+            
             //Delete asset
             PHPhotoLibrary.shared().performChanges( {
                 let imageAssetsToDelete = PHAsset.fetchAssets(withALAssetURLs: imageUrls as [URL], options: nil)
                 PHAssetChangeRequest.deleteAssets(imageAssetsToDelete)
             },
             completionHandler: { success, error in
+                var message:String!
                 if error != nil{
-                    let ac = UIAlertController(title: "Error", message: "Media could not be deleted from your Photos", preferredStyle: .alert)
+                    if mediaType.isEqual(to: "public.image"){
+                        message = "Image could not be deleted from your Photos"
+                    }
+                    else{
+                        message = "Video could not be deleted from your Photos"
+                    }
+                    let ac = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
                     self.present(ac, animated: true)
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                         ac.dismiss(animated: true, completion: nil)
                     }
                 }
                 else{
-                    let ac = UIAlertController(title: "Success", message: "Media has been deleted from your Photos", preferredStyle: .alert)
+                    if mediaType.isEqual(to: "public.image"){
+                        message = "Image has been deleted from your Photos"
+                    }
+                    else{
+                        message = "Video has been deleted from your Photos"
+                    }
+                    let ac = UIAlertController(title: "Success", message: message, preferredStyle: .alert)
                     self.present(ac, animated: true)
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                         ac.dismiss(animated: true, completion: nil)
@@ -353,7 +513,7 @@ class MainController: UITableViewController, UIImagePickerControllerDelegate, UI
                 self.scrollToBottom(animated: true, size: size)
             })
         }
-    }
+    }*/
     
     func scrollToBottom(animated:Bool, size:Int) {
         let indexPath = NSIndexPath.init(row: self.titles.count-1, section: 0)
@@ -365,6 +525,7 @@ class MainController: UITableViewController, UIImagePickerControllerDelegate, UI
         
         let cell:UITableViewCell! = tableView.dequeueReusableCell(withIdentifier: "CellID")
         
+        // Init download button and set attributes
         let downloadButton = UIButton(type: .custom)
         downloadButton.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
         downloadButton.layer.cornerRadius = 5
@@ -380,6 +541,7 @@ class MainController: UITableViewController, UIImagePickerControllerDelegate, UI
         downloadButton.addTarget(self, action: #selector(MainController.resetDownloadButtonProps(_:)), for: .touchUpOutside)
         downloadButton.tag = indexPath.row
         
+        // Init delete button and set attributes
         let deleteButton = UIButton(type: .custom)
         deleteButton.frame = CGRect(x: 40, y: 0, width: 30, height: 30)
         deleteButton.layer.cornerRadius = 5
@@ -395,10 +557,12 @@ class MainController: UITableViewController, UIImagePickerControllerDelegate, UI
         deleteButton.addTarget(self, action: #selector(MainController.resetDeleteButtonProps(_:)), for: .touchUpOutside)
         deleteButton.tag = indexPath.row
         
+        // Add custom buttons to UIView for cell's accessory view
         let buttons: UIView = UIView(frame: CGRect(x: 0, y: 0, width: 70, height: 30))
         buttons.addSubview(downloadButton)
         buttons.addSubview(deleteButton)
         
+        // Setup cell view
         cell?.accessoryView = buttons
         cell?.imageView?.image = images[indexPath.row]
         cell.textLabel?.text = titles[indexPath.row]
@@ -407,6 +571,7 @@ class MainController: UITableViewController, UIImagePickerControllerDelegate, UI
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if images != nil {
+            // Init Agrume 3rd party image viewer class
             self.agrume = Agrume(images: self.images, startIndex: indexPath.row, backgroundBlurStyle: .dark)
             self.agrume.didScroll = { [unowned self] index in
                 self.tableView.scrollToRow(at: IndexPath.init(row: index, section: 0), at: UITableViewScrollPosition.none, animated: false)
@@ -414,9 +579,11 @@ class MainController: UITableViewController, UIImagePickerControllerDelegate, UI
             let fileName = tableView.cellForRow(at: indexPath)?.textLabel?.text as String!
             let imageExt = fileName!.substring(from:(fileName!.index(fileName!.endIndex, offsetBy: -4))) as String! as NSString
             if imageExt.isEqual(to: "jpeg"){
+                // If it's an image, open the image with Agrume
                 agrume.showFrom(self)
             }
             else{
+                // If it's a video, instantiate and open media with AVPlayer
                 let filePathURL = URL(fileURLWithPath: self.imagesDirectoryPath.appending("/\(fileName!)"))
                 self.player = AVPlayer(url: filePathURL)
                 self.playerController = AVPlayerViewController()
@@ -432,7 +599,7 @@ class MainController: UITableViewController, UIImagePickerControllerDelegate, UI
         return images.count
     }
     
-    override func willRotate(to toInterfaceOrientation: UIInterfaceOrientation, duration: TimeInterval) {
+    /*override func willRotate(to toInterfaceOrientation: UIInterfaceOrientation, duration: TimeInterval) {
         self.refreshTable()
-    }
+    }*/
 }
