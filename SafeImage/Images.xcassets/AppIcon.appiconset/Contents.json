@@ -3,7 +3,7 @@
     {
       "size" : "20x20",
       "idiom" : "iphone",
-      "filename" : "safeImageLogo40.png",
+      "filename" : "meoImageLogo40.png",
       "scale" : "2x"
     },
     {
@@ -14,7 +14,7 @@
     {
       "size" : "29x29",
       "idiom" : "iphone",
-      "filename" : "safeImageLogo58.png",
+      "filename" : "meoImageLogo58.png",
       "scale" : "2x"
     },
     {
@@ -25,7 +25,7 @@
     {
       "size" : "40x40",
       "idiom" : "iphone",
-      "filename" : "safeImageLogo80.png",
+      "filename" : "meoImageLogo80.png",
       "scale" : "2x"
     },
     {
@@ -36,7 +36,7 @@
     {
       "size" : "60x60",
       "idiom" : "iphone",
-      "filename" : "safeImageLogo-1.png",
+      "filename" : "meoImageLogo-1.png",
       "scale" : "2x"
     },
     {

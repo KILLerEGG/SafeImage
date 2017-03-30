@@ -14,7 +14,7 @@ class AuthenticationController: UIViewController, UITextFieldDelegate {
     
     var originalOrientation:NSString = "portrait"
     
-    let MyKeychainWrapper = KeychainWrapper()
+    var MyKeychainWrapper = KeychainWrapper()
     let createLoginButtonTag = 0
     let loginButtonTag = 1
     
@@ -22,6 +22,7 @@ class AuthenticationController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var touchIDButton: UIButton!
     @IBOutlet weak var passwordTextField: UITextField!
     @IBOutlet weak var createInfoLabel: UILabel!
+    @IBOutlet weak var changePassButton: UIButton!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -34,13 +35,18 @@ class AuthenticationController: UIViewController, UITextFieldDelegate {
         
         loginButton.layer.cornerRadius = 5
         
+        self.navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: UIBarButtonItemStyle.plain, target: nil, action: nil)
+
+        
         if hasLogin {
             loginButton.setTitle("Login", for: UIControlState.normal)
             loginButton.tag = loginButtonTag
             createInfoLabel.text = "Enter your password to log in"
+            changePassButton.isHidden = false
         } else {
             loginButton.setTitle("Create", for: UIControlState.normal)
             loginButton.tag = createLoginButtonTag
+            changePassButton.isHidden = true
         }
         
         self.passwordTextField.delegate = self
@@ -54,7 +60,7 @@ class AuthenticationController: UIViewController, UITextFieldDelegate {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
+        MyKeychainWrapper = KeychainWrapper()
         //self.touchAuth()
     }
     
@@ -124,6 +130,34 @@ class AuthenticationController: UIViewController, UITextFieldDelegate {
         })
     }
     
+    func passChangeAuth(){
+        let authenticationContext = LAContext()
+        
+        var error:NSError?
+        
+        guard authenticationContext.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
+        else {
+                touchIDButton.isHidden = true
+                return
+        }
+        
+        // 3. Check the fingerprint
+        authenticationContext.evaluatePolicy(
+            .deviceOwnerAuthenticationWithBiometrics,
+            localizedReason: "Authenticate to change password",
+            reply: { [unowned self] (success, error) -> Void in
+                
+                if( success ) {
+                    
+                    // Fingerprint recognized
+                    // Go to view controller
+                    self.dismissKeyboard()
+                    self.navigateToPasswordChangeViewController()
+                    
+                }
+        })
+    }
+    
     func navigateToAuthenticatedViewController(){
         if let loggedInVC = storyboard?.instantiateViewController(withIdentifier: "MainController") {
             
@@ -135,6 +169,29 @@ class AuthenticationController: UIViewController, UITextFieldDelegate {
             
         }
         
+    }
+    
+    func navigateToAuthenticatedDummyViewController(){
+        if let loggedInVC = storyboard?.instantiateViewController(withIdentifier: "DummyController") {
+            
+            DispatchQueue.main.async { () -> Void in
+                self.passwordTextField.text = ""
+                self.dismissKeyboard()
+                self.navigationController?.pushViewController(loggedInVC, animated: true)
+            }
+            
+        }
+        
+    }
+    
+    func navigateToPasswordChangeViewController(){
+        if let loggedInVC = storyboard?.instantiateViewController(withIdentifier: "ChangePassController") {
+            DispatchQueue.main.async { () -> Void in
+                self.passwordTextField.text = ""
+                self.dismissKeyboard()
+                self.navigationController?.pushViewController(loggedInVC, animated: true)
+            }
+        }
     }
     
     func errorMessageForLAErrorCode( errorCode:Int ) -> String{
@@ -220,6 +277,9 @@ class AuthenticationController: UIViewController, UITextFieldDelegate {
             if (checkLogin(password: passwordTextField.text!)) {
                 self.navigateToAuthenticatedViewController()
             }
+            else if (passwordTextField.text! == "dummy"){
+                self.navigateToAuthenticatedDummyViewController()
+            }
             else {
                 showAlertWithTitle(title: "Error", message: "Invalid password")
             }
@@ -229,6 +289,10 @@ class AuthenticationController: UIViewController, UITextFieldDelegate {
     @IBAction func touchLogin(_ sender: Any) {
         self.dismissKeyboard()
         self.touchAuth()
+    }
+    @IBAction func changePass(_ sender: Any) {
+        self.dismissKeyboard()
+        self.passChangeAuth()
     }
     
     func adjustViewsForOrientation(toInterfaceOrientation: UIInterfaceOrientation){

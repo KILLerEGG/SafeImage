@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11762" systemVersion="16C67" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="kxK-xK-XUW">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11762" systemVersion="16D32" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="kxK-xK-XUW">
     <device id="retina4_0" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -108,7 +109,7 @@
                                 <textInputTraits key="textInputTraits" secureTextEntry="YES"/>
                             </textField>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ziH-q9-e2a">
-                                <rect key="frame" x="126.5" y="318" width="67" height="66"/>
+                                <rect key="frame" x="127" y="318" width="67" height="66"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                                 <state key="normal" image="Touch-icon-lg"/>
                                 <connections>
@@ -126,15 +127,31 @@
                                     <action selector="authenticateButton:" destination="zfc-4G-cRn" eventType="touchUpInside" id="bun-MJ-rsb"/>
                                 </connections>
                             </button>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="20H-gW-HJg">
+                                <rect key="frame" x="95" y="422" width="123" height="30"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dfa-Ea-tpO">
+                                        <rect key="frame" x="0.0" y="0.0" width="123" height="30"/>
+                                        <state key="normal" title="Change Password">
+                                            <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="changePass:" destination="zfc-4G-cRn" eventType="touchUpInside" id="H4g-gM-4C1"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                            </stackView>
                         </subviews>
                         <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="20H-gW-HJg" firstAttribute="leading" secondItem="F1g-hy-gUa" secondAttribute="leadingMargin" constant="79" id="8dX-3h-K0s"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="20H-gW-HJg" secondAttribute="trailing" constant="86" id="bKa-ev-ecO"/>
+                            <constraint firstItem="wma-w2-kaa" firstAttribute="top" secondItem="20H-gW-HJg" secondAttribute="bottom" constant="8" id="zSC-xf-Y1T"/>
+                        </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Login" id="E6L-8m-Cz2">
-                        <barButtonItem key="backBarButtonItem" title="Logout" id="UOU-lS-xOW">
-                            <color key="tintColor" red="0.9959825873374939" green="0.99621325731277466" blue="0.99187678098678589" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                        </barButtonItem>
-                    </navigationItem>
+                    <navigationItem key="navigationItem" title="Login" id="E6L-8m-Cz2"/>
                     <connections>
+                        <outlet property="changePassButton" destination="dfa-Ea-tpO" id="GQQ-JW-nPz"/>
                         <outlet property="createInfoLabel" destination="F0c-h8-afH" id="LoC-n3-3cb"/>
                         <outlet property="loginButton" destination="adV-7Y-XDK" id="akk-J0-anU"/>
                         <outlet property="passwordTextField" destination="cfi-7T-0bs" id="noH-iu-xtm"/>
@@ -143,7 +160,105 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="5HZ-5W-am0" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="344.80000000000001" y="133.5832083958021"/>
+            <point key="canvasLocation" x="343.125" y="133.09859154929578"/>
+        </scene>
+        <!--Change Pass Controller-->
+        <scene sceneID="lJu-EC-pMb">
+            <objects>
+                <viewController restorationIdentifier="ChangePassController" storyboardIdentifier="ChangePassController" id="a21-D8-q60" customClass="ChangePassController" customModule="SafeImage" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="nQ3-gk-fb3"/>
+                        <viewControllerLayoutGuide type="bottom" id="lwg-R7-ovo"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="Duc-em-N1H">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="New Password" textAlignment="center" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="skA-08-hJo">
+                                <rect key="frame" x="12" y="188" width="296" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <nil key="textColor"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                <textInputTraits key="textInputTraits" secureTextEntry="YES"/>
+                            </textField>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="safeImageLogoTrans" translatesAutoresizingMaskIntoConstraints="NO" id="Yod-vl-6KB">
+                                <rect key="frame" x="110" y="20" width="100" height="100"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </imageView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Enter a new password:" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dFA-jL-Ikh">
+                                <rect key="frame" x="12" y="131" width="296" height="45"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" red="0.9959825873" green="0.99621325729999999" blue="0.99187678099999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="IA1-JS-oYe">
+                                <rect key="frame" x="98" y="242" width="124" height="57"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" red="0.039215686270000001" green="0.37647058820000001" blue="0.99607843139999996" alpha="1" colorSpace="calibratedRGB"/>
+                                <state key="normal" title="Set Password">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="changePassAction:" destination="a21-D8-q60" eventType="touchUpInside" id="jfC-zN-YyD"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                    <connections>
+                        <outlet property="changePassButton" destination="IA1-JS-oYe" id="H7U-6R-Qvu"/>
+                        <outlet property="passwordTextField" destination="skA-08-hJo" id="XGF-9Q-yhO"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="6E7-ap-teK" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="341.25" y="779.57746478873241"/>
+        </scene>
+        <!--Dummy Controller-->
+        <scene sceneID="CcI-Cr-in2">
+            <objects>
+                <tableViewController restorationIdentifier="DummyController" storyboardIdentifier="DummyController" id="m1P-W4-9EW" customClass="DummyController" customModule="SafeImage" customModuleProvider="target" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" id="ZbY-fj-OEx">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <prototypes>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="CellID" id="SUw-f8-cmS">
+                                <rect key="frame" x="0.0" y="28" width="320" height="44"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="SUw-f8-cmS" id="7hJ-Mt-sTf">
+                                    <rect key="frame" x="0.0" y="0.0" width="320" height="43"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </tableViewCellContentView>
+                            </tableViewCell>
+                        </prototypes>
+                        <connections>
+                            <outlet property="dataSource" destination="m1P-W4-9EW" id="gg5-Ga-Go4"/>
+                            <outlet property="delegate" destination="m1P-W4-9EW" id="G0u-M9-aer"/>
+                        </connections>
+                    </tableView>
+                    <toolbarItems>
+                        <barButtonItem title="Item" id="mjI-34-p7R"/>
+                        <barButtonItem title="Item" id="dYW-Wt-J4U"/>
+                    </toolbarItems>
+                    <navigationItem key="navigationItem" id="Ddf-Mz-teh">
+                        <barButtonItem key="rightBarButtonItem" systemItem="camera" id="cBY-3U-lRS">
+                            <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            <connections>
+                                <action selector="choosePhoto:" destination="m1P-W4-9EW" id="eVk-lQ-4z7"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
+                    <connections>
+                        <outlet property="deleteSwitch" destination="dYW-Wt-J4U" id="W6a-F6-PiZ"/>
+                        <outlet property="deleteSwitchLabel" destination="mjI-34-p7R" id="y0b-6W-P58"/>
+                    </connections>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="GpE-Bf-mes" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1695" y="124"/>
         </scene>
     </scenes>
     <resources>

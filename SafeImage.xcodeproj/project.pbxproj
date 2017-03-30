@@ -10,6 +10,8 @@
 		4C0FBF2C1E0F1E9B00301A97 /* MainController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C0FBF2B1E0F1E9B00301A97 /* MainController.swift */; };
 		4C2ACE2D1E1051F000F67E4C /* KeychainWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C2ACE2C1E1051F000F67E4C /* KeychainWrapper.m */; };
 		4C2ACE2F1E11840300F67E4C /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4C2ACE2E1E11840300F67E4C /* Images.xcassets */; };
+		4C2C03811E8C6FD80020A2C3 /* ChangePassController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C2C03801E8C6FD80020A2C3 /* ChangePassController.swift */; };
+		4C2C03831E8CC7F50020A2C3 /* DummyController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C2C03821E8CC7F50020A2C3 /* DummyController.swift */; };
 		4C3977671E0F72500023BF55 /* LocalAuthentication.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C3977661E0F72500023BF55 /* LocalAuthentication.framework */; };
 		4C3977691E0F72840023BF55 /* AuthenticationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C3977681E0F72840023BF55 /* AuthenticationController.swift */; };
 		4CB4704F1E137DAB00CF1B4C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4CB4704E1E137DAB00CF1B4C /* Assets.xcassets */; };
@@ -63,6 +65,8 @@
 		4C2ACE2B1E1051F000F67E4C /* KeychainWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeychainWrapper.h; sourceTree = "<group>"; };
 		4C2ACE2C1E1051F000F67E4C /* KeychainWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeychainWrapper.m; sourceTree = "<group>"; };
 		4C2ACE2E1E11840300F67E4C /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		4C2C03801E8C6FD80020A2C3 /* ChangePassController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChangePassController.swift; sourceTree = "<group>"; };
+		4C2C03821E8CC7F50020A2C3 /* DummyController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DummyController.swift; sourceTree = "<group>"; };
 		4C3977661E0F72500023BF55 /* LocalAuthentication.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = LocalAuthentication.framework; path = System/Library/Frameworks/LocalAuthentication.framework; sourceTree = SDKROOT; };
 		4C3977681E0F72840023BF55 /* AuthenticationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthenticationController.swift; sourceTree = "<group>"; };
 		4CB4704E1E137DAB00CF1B4C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -147,11 +151,13 @@
 				4CCBDE4C1E0F1B5A006F06EB /* AppDelegate.swift */,
 				4C2ACE2E1E11840300F67E4C /* Images.xcassets */,
 				4CCBDE501E0F1B5B006F06EB /* Main.storyboard */,
+				4C2C03801E8C6FD80020A2C3 /* ChangePassController.swift */,
 				4CCBDE551E0F1B5B006F06EB /* LaunchScreen.storyboard */,
 				4CCBDE581E0F1B5B006F06EB /* Info.plist */,
 				4C2ACE2B1E1051F000F67E4C /* KeychainWrapper.h */,
 				4C2ACE2C1E1051F000F67E4C /* KeychainWrapper.m */,
 				4C2ACE2A1E1051EF00F67E4C /* SafeImage-Bridging-Header.h */,
+				4C2C03821E8CC7F50020A2C3 /* DummyController.swift */,
 			);
 			path = SafeImage;
 			sourceTree = "<group>";
@@ -486,10 +492,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4C2C03831E8CC7F50020A2C3 /* DummyController.swift in Sources */,
 				4C3977691E0F72840023BF55 /* AuthenticationController.swift in Sources */,
 				4C2ACE2D1E1051F000F67E4C /* KeychainWrapper.m in Sources */,
 				4C0FBF2C1E0F1E9B00301A97 /* MainController.swift in Sources */,
 				4CCBDE4D1E0F1B5A006F06EB /* AppDelegate.swift in Sources */,
+				4C2C03811E8C6FD80020A2C3 /* ChangePassController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
