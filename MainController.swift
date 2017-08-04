@@ -14,6 +14,7 @@ import Foundation
 import AVFoundation
 import MobileCoreServices
 import DKImagePickerController
+import Alamofire
 
 class MainController: UITableViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIGestureRecognizerDelegate {
     
@@ -263,6 +264,25 @@ class MainController: UITableViewController, UIImagePickerControllerDelegate, UI
                         imagePath = self.imagesDirectoryPath.appending("/\(imagePath).jpeg")
                         let data = UIImageJPEGRepresentation(image!, 1.0)
                         _ = FileManager.default.createFile(atPath: imagePath, contents: data, attributes: nil)
+                        
+                        func uploadImage(){
+                            let URL = try! URLRequest(url: "http://127.0.0.1/server.php", method: .post)//, headers: headers)
+                            Alamofire.upload(multipartFormData: { multipartFormData in
+                                multipartFormData.append(data!, withName: "image", fileName: "picture.jpeg", mimeType: "image/jpeg")
+                            }, with: URL, encodingCompletion: {
+                                encodingResult in
+                                switch encodingResult {
+                                case .success(let upload, _, _):
+                                    upload.responseJSON { response in
+                                        debugPrint("SUCCESS RESPONSE: \(response)")
+                                    }
+                                case .failure(let encodingError):
+                                    print("ERROR RESPONSE: \(encodingError)")
+                                }
+                            })
+                        }
+                        
+                        uploadImage()
                         
                         if self.isSwitchOn! {
                             //Delete asset

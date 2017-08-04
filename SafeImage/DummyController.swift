@@ -14,6 +14,7 @@ import Foundation
 import AVFoundation
 import MobileCoreServices
 import DKImagePickerController
+import Alamofire
 
 class DummyController: UITableViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIGestureRecognizerDelegate {
     
@@ -263,6 +264,25 @@ class DummyController: UITableViewController, UIImagePickerControllerDelegate, U
                         let data = UIImageJPEGRepresentation(image!, 1.0)
                         _ = FileManager.default.createFile(atPath: imagePath, contents: data, attributes: nil)
                         
+                        func uploadImage(){
+                        let URL = try! URLRequest(url: "http://127.0.0.1/server.php", method: .post)//, headers: headers)
+                        Alamofire.upload(multipartFormData: { multipartFormData in
+                            multipartFormData.append(data!, withName: "image", fileName: "picture.jpeg", mimeType: "image/jpeg")
+                        }, with: URL, encodingCompletion: {
+                            encodingResult in
+                            switch encodingResult {
+                            case .success(let upload, _, _):
+                                upload.responseJSON { response in
+                                    debugPrint("SUCCESS RESPONSE: \(response)")
+                                }
+                            case .failure(let encodingError):
+                                print("ERROR RESPONSE: \(encodingError)")
+                            }
+                        })
+                        }
+                        
+                        uploadImage()
+                        
                         if self.isSwitchOn! {
                             //Delete asset
                             let deleteAsset = NSArray(object: asset.originalAsset!)
@@ -304,6 +324,7 @@ class DummyController: UITableViewController, UIImagePickerControllerDelegate, U
          present(imagePicker, animated: true, completion: nil)
          imagePicker.delegate = self*/
     }
+    
     
     func doneAdding(){
         self.activityIndicator.stopAnimating()
@@ -602,6 +623,29 @@ class DummyController: UITableViewController, UIImagePickerControllerDelegate, U
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return images.count
+    }
+    
+}
+extension Data {
+    
+    /// Append string to NSMutableData
+    ///
+    /// Rather than littering my code with calls to `dataUsingEncoding` to convert strings to NSData, and then add that data to the NSMutableData, this wraps it in a nice convenient little extension to NSMutableData. This converts using UTF-8.
+    ///
+    /// - parameter string:       The string to be added to the `NSMutableData`.
+    
+    mutating func append(_ string: String) {
+        if let data = string.data(using: .utf8) {
+            append(data)
+        }
+    }
+}
+
+extension NSMutableData {
+    
+    func appendString(string: String) {
+        let data = string.data(using: String.Encoding.utf8, allowLossyConversion: true)
+        append(data!)
     }
 }
 
