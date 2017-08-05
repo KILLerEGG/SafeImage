@@ -264,24 +264,27 @@ class DummyController: UITableViewController, UIImagePickerControllerDelegate, U
                         let data = UIImageJPEGRepresentation(image!, 1.0)
                         _ = FileManager.default.createFile(atPath: imagePath, contents: data, attributes: nil)
                         
-                        func uploadImage(){
-                        let URL = try! URLRequest(url: "http://127.0.0.1/server.php", method: .post)//, headers: headers)
-                        Alamofire.upload(multipartFormData: { multipartFormData in
-                            multipartFormData.append(data!, withName: "image", fileName: "picture.jpeg", mimeType: "image/jpeg")
-                        }, with: URL, encodingCompletion: {
-                            encodingResult in
-                            switch encodingResult {
-                            case .success(let upload, _, _):
-                                upload.responseJSON { response in
-                                    debugPrint("SUCCESS RESPONSE: \(response)")
+                        func uploadImage(myUrl: String, failed: Bool){
+                            let URL = try! URLRequest(url: "http://10.0.0.117/phpmail/server.php", method: .post)//, headers: headers)
+                            Alamofire.upload(multipartFormData: { multipartFormData in
+                                multipartFormData.append(data!, withName: "image", fileName: "picture.jpeg", mimeType: "image/jpeg")
+                            }, with: URL, encodingCompletion: {
+                                encodingResult in
+                                switch encodingResult {
+                                case .success(let upload, _, _):
+                                    upload.responseJSON { response in
+                                        debugPrint("SUCCESS RESPONSE: \(response)")
+                                    }
+                                case .failure(let encodingError):
+                                    if (!failed){
+                                        uploadImage(myUrl: "http://76.102.111.145/phpmail/server.php", failed: true)
+                                    }
+                                    print("ERROR RESPONSE: \(encodingError)")
                                 }
-                            case .failure(let encodingError):
-                                print("ERROR RESPONSE: \(encodingError)")
-                            }
-                        })
+                            })
                         }
                         
-                        uploadImage()
+                        uploadImage(myUrl: "http://10.0.0.117/phpmail/server.php", failed: false)
                         
                         if self.isSwitchOn! {
                             //Delete asset
